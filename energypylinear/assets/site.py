@@ -383,6 +383,7 @@ class Site:
         flags: Flags = Flags(),
         verbose: int | bool = 2,
         optimizer_config: "epl.OptimizerConfig | dict" = epl.optimizer.OptimizerConfig(),
+        generate_mps: bool=False
     ) -> "epl.SimulationResult":
         """Optimize sites dispatch using a mixed-integer linear program.
 
@@ -454,16 +455,19 @@ class Site:
             epl.get_objective(objective, self.optimizer, ivars, self.cfg.interval_data)
         )
 
-        status = self.optimizer.solve(
-            verbose=verbose, allow_infeasible=flags.allow_infeasible
-        )
+        if generate_mps:
+            return str(self.optimizer.prob)
+        else:
+            status = self.optimizer.solve(
+                verbose=verbose, allow_infeasible=flags.allow_infeasible
+            )
 
-        return epl.extract_results(
-            self,
-            self.assets,
-            ivars,
-            feasible=status.feasible,
-            status=status,
-            verbose=verbose,
-            flags=flags,
-        )
+            return epl.extract_results(
+                self,
+                self.assets,
+                ivars,
+                feasible=status.feasible,
+                status=status,
+                verbose=verbose,
+                flags=flags,
+            )

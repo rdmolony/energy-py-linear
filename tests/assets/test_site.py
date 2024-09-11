@@ -269,3 +269,17 @@ def test_import_export_limits(import_limit_mw: float, export_limit_mw: float) ->
     assert simulation.feasible
     assert simulation.results["site-import_power_mwh"].max() <= import_limit_mw
     assert simulation.results["site-export_power_mwh"].max() <= export_limit_mw
+
+
+def test_generate_mps() -> None:
+    """Tests the allow infeasible flag."""
+    site = epl.Site(
+        assets=[],
+        electricity_prices=[100, 100, 100, 200, 200],
+        electric_load_mwh=1000,
+        import_limit_mw=0,
+    )
+    mps = site.optimize(generate_mps=True)
+    assert "MINIMIZE" in mps
+    assert "SUBJECT TO" in mps
+    assert "VARIABLES" in mps
